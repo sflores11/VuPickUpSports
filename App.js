@@ -1,39 +1,84 @@
 import 'react-native-gesture-handler';
 import React, {Component} from 'react';
-import { StyleSheet, Text, TextInput, View, Button } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Button, FlatList} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 class LocationScreen extends Component {
+
   render() {
     //You can't add styling to the react buttons so those spacing views are used instead
     return(
-      <View>
+      <View style={styles.container}>
         <Text style={styles.title}>West Campus</Text>
-        <Button title="Soccer Fields"></Button>
+        <Button title="Soccer Fields" onPress={()=> this.props.navigation.navigate('Games', {location: "WEST_SOCCER"})}/>
           <View style={styles.spacing}></View> 
-        <Button title="St. Mary's Gym"></Button>
+        <Button title="St. Mary's Gym" onPress={()=> this.props.navigation.navigate('Games', {location: "ST_MARY"})}/>
           <View style={styles.spacing}></View>
-        <Button title="Tennis Courts"></Button>
-        <View style={styles.spacing}></View>
-        <Button title="Volleyball Courts"></Button>
-        <View style={styles.spacing}></View>
-        <Button title="Basketball Courts"></Button>
+        <Button title="Tennis Courts" onPress={()=> this.props.navigation.navigate('Games', {location: "WEST_TENNIS"})}/>
+          <View style={styles.spacing}></View>
+        <Button title="Volleyball Courts" onPress={()=> this.props.navigation.navigate('Games', {location: "WEST_VOLLEYBALL"})}/>
+          <View style={styles.spacing}></View>
+        <Button title="Basketball Courts" onPress={()=> this.props.navigation.navigate('Games', {location: "WEST_BASKETBALL"})}/>
         <Text style={styles.title}>South Campus</Text>
-        <Button title="Pike Field"></Button>
+        <Button title="Pike Field" onPress={()=> this.props.navigation.navigate('Games', {location: "PIKE"})}/>
           <View style={styles.spacing}></View>
-        <Button title="Volleyball Courts"></Button>
+        <Button title="Volleyball Courts" onPress={()=> this.props.navigation.navigate('Games', {location: "SOUTH_VOLLEYBALL"})}/>
           <View style={styles.spacing}></View>
-        <Button title="Basketball Courts"></Button>
+        <Button title="Basketball Courts" onPress={()=> this.props.navigation.navigate('Games', {location: "SOUTH_BASKETBALL"})}/>
         <Text style={styles.title}>Main Campus</Text>
-        <Button title="Alumni Gym"></Button>
+        <Button title="Alumni Gym" onPress={()=> this.props.navigation.navigate('Games', {location: "ALUMNI"})}/>
           <View style={styles.spacing}></View>
-        <Button title="Austin Field"></Button>
+        <Button title="Austin Field" onPress={()=> this.props.navigation.navigate('Games', {location: "AUSTIN"})}/>
           <View style={styles.spacing}></View>
-        <Button title="Tennis Courts"></Button>
+        <Button title="Tennis Courts" onPress={()=> this.props.navigation.navigate('Games', {location: "MAIN_TENNIS"})}/>
           <View style={styles.spacing}></View>
-        <Button title="Basketball Courts"></Button>
+        <Button title="Basketball Courts" onPress={()=> this.props.navigation.navigate('Games', {location: "MAIN_BASKETBALL"})}/>
+      </View>
+    );
+  }
+}
+
+class GameScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: []
+    };
+  }
+
+  componentDidMount() {
+    const d = require('./assets/test-data.json');
+    const loc = this.props.route.params.location;
+    this.setState({
+      data: d[loc]
+    });
+  }
+
+  renderItem = (item) => {
+    return( 
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.gameInfo}>
+          <Text style={styles.title}>{item.name}</Text>
+          <Text style={styles.title}>{item.date} {item.time}</Text>
+          <Text style={styles.title}>{item.sport}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  render() {
+    return(
+      <View style={styles.container}>
+        <Text style={styles.title}>Games Screen</Text>
+        <FlatList 
+          data={this.state.data}
+          renderItem={({item}) => this.renderItem(item)}
+          keyExtractor={(item, index) => index.toString()}
+        />
+        <Button title="Create A Game"/>
       </View>
     );
   }
@@ -164,6 +209,7 @@ export default class App extends Component {
     this.state = {
       email: "",
       password: "",
+      location: ""
     };
   }
 
@@ -174,8 +220,8 @@ export default class App extends Component {
           <Stack.Screen name="Login" component={LoginScreen}/>
           <Stack.Screen name="Signup" component={SignUpScreen}/>
           <Stack.Screen name="Home" component={LocationScreen}/>
-          {/* <Stack.Screen name="Games" component={GameScreen}/>
-          <Stack.Screen name="GameInfo" component={GameInfoScreen}/>
+          <Stack.Screen name="Games" component={GameScreen}/>
+          {/*<Stack.Screen name="GameInfo" component={GameInfoScreen}/>
           <Stack.Screen name="CreateGame" component={CreateGameScreen}/> */}
         </Stack.Navigator>
       </NavigationContainer>
@@ -189,6 +235,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 10
   },
   
   title: {
@@ -198,5 +245,20 @@ const styles = StyleSheet.create({
   spacing:{
     width: 5,
     height: 5
+  },
+
+  gameContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10
+  },
+
+  gameInfo: {
+    borderBottomWidth: 2,
+    borderTopWidth: 2,
+    borderColor: "blue",
+    padding: 25,
   }
 });
