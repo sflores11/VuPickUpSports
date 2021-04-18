@@ -1,0 +1,197 @@
+{
+    "WEST_SOCCER": [
+        {
+            "name": "Game 1",
+            "date": "4/22",
+            "time": "3:45",
+            "sport": "Soccer",
+            "players": "8/14"
+        },
+
+        {
+            "name": "Game 2",
+            "date": "4/23",
+            "time": "7:00",
+            "sport": "Soccer",
+            "players": "19/22"
+        }
+    ],
+
+    "ST_MARY": [
+        {
+            "name": "Game 3",
+            "date": "4/22",
+            "time": "5:55",
+            "sport": "Basketball",
+            "players": "10/12"
+        },
+        
+        {
+            "name": "Game 4",
+            "date": "4/23",
+            "time": "7:30",
+            "sport": "Basketball",
+            "players": "9/10"
+        }
+    ],
+
+    "WEST_TENNIS": [
+        
+    ],
+
+    "WEST_VOLLEYBALL": [
+        {
+            "name": "Game 5",
+            "date": "4/25",
+            "time": "5:00",
+            "sport": "Volleyball",
+            "players": "6/8"
+        }
+    ],
+
+    "WEST_BASKETBALL": [
+        {
+            "name": "Game 5",
+            "date": "4/22",
+            "time": "5:30",
+            "sport": "Basketball",
+            "players": "4/10"
+        }
+    ],
+
+    "PIKE": [
+        {
+            "name": "Game 6",
+            "date": "4/26",
+            "time": "5:00",
+            "sport": "Soccer",
+            "players": "5/10"
+        }
+    ],
+
+    "SOUTH_VOLLEYBALL": [
+        
+    ],
+
+    "SOUTH_BASKETBALL": [
+        {
+            "name": "Game 7",
+            "date": "4/22",
+            "time": "5:30",
+            "sport": "Basketball",
+            "players": "10/10"
+        },
+
+        {
+            "name": "Game 8",
+            "date": "4/22",
+            "time": "6:30",
+            "sport": "Basketball",
+            "players": "10/10"
+        },
+
+        {
+            "name": "Game 9",
+            "date": "4/22",
+            "time": "7:30",
+            "sport": "Basketball",
+            "players": "8/10"
+        }
+    ],
+
+    "ALUMNI": [
+        {
+            "name": "Game 10",
+            "date": "4/22",
+            "time": "6:00",
+            "sport": "Basketball",
+            "players": "10/10"
+        },
+
+        {
+            "name": "Game 11",
+            "date": "4/22",
+            "time": "7:00",
+            "sport": "Basketball",
+            "players": "8/10"
+        },
+
+        {
+            "name": "Game 12",
+            "date": "4/22",
+            "time": "8:00",
+            "sport": "Basketball",
+            "players": "10/10"
+        },
+
+        {
+            "name": "Game 13",
+            "date": "4/23",
+            "time": "9:00",
+            "sport": "Basketball",
+            "players": "3/10"
+        },
+
+        {
+            "name": "Game 14",
+            "date": "4/24",
+            "time": "5:30",
+            "sport": "Basketball",
+            "players": "7/10"
+        }
+    ],
+
+    "AUSTIN": [
+        {
+            "name": "Game 15",
+            "date": "4/26",
+            "time": "6:00",
+            "sport": "Softball",
+            "players": "19/24"
+        }
+    ],
+
+    "MAIN_TENNIS": [
+        {
+            "name": "Game 16",
+            "date": "4/23",
+            "time": "6:00",
+            "sport": "Tennis",
+            "players": "1/2"
+        },
+
+        {
+            "name": "Game 17",
+            "date": "4/24",
+            "time": "6:15",
+            "sport": "Tennis",
+            "players": "3/4"
+        }
+    ],
+
+    "MAIN_BASKETBALL": [
+        {
+            "name": "Game 18",
+            "date": "4/22",
+            "time": "6:00",
+            "sport": "Basketball",
+            "players": "4/6"
+        },
+
+        {
+            "name": "Game 19",
+            "date": "4/22",
+            "time": "7:00",
+            "sport": "Basketball",
+            "players": "5/8"
+        },
+
+        {
+            "name": "Game 20",
+            "date": "4/24",
+            "time": "8:00",
+            "sport": "Basketball",
+            "players": "6/6"
+        }
+    ]
+}
