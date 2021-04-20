@@ -45,7 +45,8 @@ class GameScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: []
+      data: [],
+      location: ""
     };
   }
 
@@ -53,14 +54,16 @@ class GameScreen extends Component {
     const d = require('./assets/test-data.json');
     const loc = this.props.route.params.location;
     this.setState({
-      data: d[loc]
+      data: d[loc],
+      location: loc
     });
   }
 
   renderItem = (item) => {
+    console.log(this.state.data[0].date);
     return( 
       <View style={styles.container}>
-        <TouchableOpacity style={styles.gameInfo}>
+        <TouchableOpacity style={styles.gameInfo} onPress={()=>{this.props.navigation.navigate('GameInfo', {gameName: item.name})}}>
           <Text style={styles.title}>{item.name}</Text>
           <Text style={styles.title}>{item.date} {item.time}</Text>
           <Text style={styles.title}>{item.sport}</Text>
@@ -78,7 +81,7 @@ class GameScreen extends Component {
           renderItem={({item}) => this.renderItem(item)}
           keyExtractor={(item, index) => index.toString()}
         />
-        <Button title="Create A Game"/>
+        <Button title="Create A Game" onPress={() => {this.props.navigation.navigate('CreateGame', {location: this.state.location})}}/>
       </View>
     );
   }
@@ -193,10 +196,58 @@ class SignUpScreen extends Component {
   }
 }
 
-class HomeScreen extends Component {
+class CreateGameScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      location: this.props.route.params.location,
+    }
+  }
   render() {
     return (
-      <Text> Hello </Text>
+      <View style={styles.container}>
+        <Text> Hello {this.state.location}</Text>
+      </View>
+    )
+  }
+}
+
+class GameInfoScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: [],
+      players: null,
+    };
+  }
+  componentDidMount() {
+    const d = require('./assets/game-data.json');
+    const loc = this.props.route.params.gameName;
+    this.setState({
+      data: d[loc],
+      players: d[loc]['players']
+    });
+  }
+
+  render() {
+    console.log(this.state.data);
+    console.log(this.state.players);
+    const data = this.state.data;
+    return (
+      <View style={styles.container}>
+        <Text>{data.name}</Text>
+        <Text>{data.sport}</Text>
+        <Text>Players: {this.state.players}/{data.players_needed}</Text>
+        <Text> Time: {data.time}</Text>
+        <Text>Checked In Players: </Text>
+        <Text>Player 1 Skill Level</Text>
+        <Text>Player 2 Skill Level</Text>
+        <Text>Player 3 Skill Level</Text>
+        <Text>Competetive</Text>
+        <Text>Posted at {data.posted}</Text>
+        <Button title="Join Game" onPress={()=>{this.setState({players: this.state.players + 1})}}/>
+        <Button title="Leave Game" onPress={()=>{this.setState({players: this.state.players - 1})}}/>
+      </View>
     )
   }
 }
@@ -221,8 +272,8 @@ export default class App extends Component {
           <Stack.Screen name="Signup" component={SignUpScreen}/>
           <Stack.Screen name="Home" component={LocationScreen}/>
           <Stack.Screen name="Games" component={GameScreen}/>
-          {/*<Stack.Screen name="GameInfo" component={GameInfoScreen}/>
-          <Stack.Screen name="CreateGame" component={CreateGameScreen}/> */}
+          <Stack.Screen name="GameInfo" component={GameInfoScreen}/>
+          <Stack.Screen name="CreateGame" component={CreateGameScreen}/>
         </Stack.Navigator>
       </NavigationContainer>
     );
