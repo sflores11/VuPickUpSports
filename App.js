@@ -60,6 +60,7 @@ class GameScreen extends Component {
   }
 
   renderItem = (item) => {
+    console.log(this.state.data[0].date);
     return( 
       <View style={styles.container}>
         <TouchableOpacity style={styles.gameInfo} onPress={()=>{this.props.navigation.navigate('GameInfo', {gameName: item.name})}}>
@@ -216,29 +217,36 @@ class GameInfoScreen extends Component {
     super(props);
     this.state = {
       data: [],
+      players: null,
     };
   }
   componentDidMount() {
-    const d = require('./assets/test-data.json');
+    const d = require('./assets/game-data.json');
     const loc = this.props.route.params.gameName;
     this.setState({
-      data: d[loc]
+      data: d[loc],
+      players: d[loc]['players']
     });
   }
 
   render() {
+    console.log(this.state.data);
+    console.log(this.state.players);
+    const data = this.state.data;
     return (
       <View style={styles.container}>
-        <Text>Game</Text>
-        <Text> 15/22 </Text>
+        <Text>{data.name}</Text>
+        <Text>{data.sport}</Text>
+        <Text>Players: {this.state.players}/{data.players_needed}</Text>
+        <Text> Time: {data.time}</Text>
         <Text>Checked In Players: </Text>
         <Text>Player 1 Skill Level</Text>
         <Text>Player 2 Skill Level</Text>
         <Text>Player 3 Skill Level</Text>
         <Text>Competetive</Text>
-        <Text>Posted at 4:02 pm</Text>
-        <Button title="Join Game"/>
-        <Button title="Leave Game"/>
+        <Text>Posted at {data.posted}</Text>
+        <Button title="Join Game" onPress={()=>{this.setState({players: this.state.players + 1})}}/>
+        <Button title="Leave Game" onPress={()=>{this.setState({players: this.state.players - 1})}}/>
       </View>
     )
   }
