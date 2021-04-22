@@ -1,10 +1,16 @@
 import 'react-native-gesture-handler';
 import React, {Component} from 'react';
-import { StyleSheet, Text, TextInput, View, Button, FlatList} from 'react-native';
+import { StyleSheet, Text, Switch, TextInput, View, Button, FlatList, TouchableWithoutFeedback, Keyboard} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+
+const DismissKeyboard = ({ children }) => (
+  <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+    {children}
+  </TouchableWithoutFeedback>
+);
 
 class LocationScreen extends Component {
 
@@ -65,7 +71,7 @@ class GameScreen extends Component {
       <View style={styles.container}>
         <TouchableOpacity style={styles.gameInfo} onPress={()=>{this.props.navigation.navigate('GameInfo', {gameName: item.name})}}>
           <Text style={styles.title}>{item.name}</Text>
-          <Text style={styles.title}>{item.date} {item.time}</Text>
+          <Text style={styles.title}>Date: {item.date} {item.time}</Text>
           <Text style={styles.title}>{item.sport}</Text>
         </TouchableOpacity>
       </View>
@@ -201,13 +207,49 @@ class CreateGameScreen extends Component {
     super(props);
     this.state = {
       location: this.props.route.params.location,
+      total_players: null,
+      players: null,
+      competative: false,
     }
   }
+
+  handleTotal = (num) => {
+    this.setState({total_players: num});
+    console.log('total players'+this.state.total_players);
+  }
+
+  handlePlayers = (num) => {
+    this.setState({players: num});
+    console.log("players: " + this.state.players);
+  }
+
+  toggleSwitch = (value) => {
+    this.setState({competative: value});
+    console.log("Hello: " + this.state.competative);
+  }
+
+  createGame = () => {
+    console.log('pressed: ' + this.state.total_players + " "+ this.state.players +" "+this.state.competative)
+  }
+
   render() {
     return (
-      <View style={styles.container}>
-        <Text> Hello {this.state.location}</Text>
-      </View>
+      <DismissKeyboard>
+        <View style={styles.container}>
+          <Text> Hello {this.state.location}</Text>
+          <Text>Total Players?</Text>
+          <TextInput value={this.state.total_players} name='total_players' placeholder={'Enter Number'} keyboardType='numeric' onChangeText={this.handleTotal}/>
+          <Text>Players Needed?</Text>
+          <TextInput value={this.state.players} name='players' placeholder={'Enter Number'} keyboardType='numeric' onChangeText={this.handlePlayers}/>
+          <Text>Competetive?</Text> 
+          <Switch 
+            onValueChange={this.toggleSwitch} 
+            value={this.state.competative}
+            trackColor={{ false: '#767577', true: '#81b0ff'}}
+          />
+          <Button title="Create Game!" onPress={() => this.createGame()}/>
+        </View>
+      </DismissKeyboard>
     )
   }
 }
@@ -220,6 +262,7 @@ class GameInfoScreen extends Component {
       players: null,
     };
   }
+
   componentDidMount() {
     const d = require('./assets/game-data.json');
     const loc = this.props.route.params.gameName;
