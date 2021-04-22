@@ -366,6 +366,18 @@ class CreateGameScreen extends Component {
   }
 
   createGame = () => {
+    if (!this.state.selectedSport) {
+      Alert.alert('Alert', 'Must select a sport');
+      return;
+    }
+    if (!this.state.total_players) {
+      Alert.alert('Alert', 'Must have total players needed');
+      return;
+    }
+    if (!this.state.players) {
+      Alert.alert('Alert', 'Must have amount of players needed');
+      return;
+    }
     let date_data = this.state.date;
     var tod = "am";
     let a = date_data.getMonth() + 1; 
