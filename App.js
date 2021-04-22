@@ -1,11 +1,13 @@
 import 'react-native-gesture-handler';
 import React, {Component} from 'react';
-import { StyleSheet, Text, Switch, TextInput, View, Button, FlatList, TouchableWithoutFeedback, Keyboard, Alert} from 'react-native';
+import { StyleSheet, Text, Switch, TextInput, View, Button, FlatList, TouchableWithoutFeedback, Keyboard, Alert, Vibration} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Swiper from 'react-native-swiper';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import RNPickerSelect from 'react-native-picker-select';
 
 const DismissKeyboard = ({ children }) => (
   <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -102,7 +104,7 @@ class HomeScreen extends Component{
                 onChangeText={(text) => {this.setState({name: text});}}
               />
                 <View style={styles.spacing}></View>
-              <Button title="Submit" onPress={this.setValue('name', this.state.name)}/>
+              <Button title="Submit" onPress={() => this.setValue('name', this.state.name)}/>
             </View>
           </View>
 
@@ -122,7 +124,7 @@ class HomeScreen extends Component{
                 onChangeText={(text) => {this.setState({skillBasketball: text});}}
               />
                 <View style={styles.spacing}></View>
-              <Button title="Submit" onPress={this.setValue('skillBasketball', this.state.skillBasketball)}/>
+              <Button title="Submit" onPress={() => this.setValue('skillBasketball', this.state.skillBasketball)}/>
             </View>
 
             {/*SOCCER SKILL LEVEL*/}
@@ -135,7 +137,7 @@ class HomeScreen extends Component{
                 onChangeText={(text) => {this.setState({skillSoccer: text});}}
               />
                 <View style={styles.spacing}></View>
-              <Button title="Submit" onPress={this.setValue('skillSoccer', this.state.skillSoccer)}/>
+              <Button title="Submit" onPress={() => this.setValue('skillSoccer', this.state.skillSoccer)}/>
             </View>
 
             {/*VOLLEYBALL SKILL LEVEL*/}
@@ -148,7 +150,7 @@ class HomeScreen extends Component{
                 onChangeText={(text) => {this.setState({skillVolleyball: text});}}
               />
                 <View style={styles.spacing}></View>
-              <Button title="Submit" onPress={this.setValue('skillVolleyball', this.state.skillVolleyball)}/>
+              <Button title="Submit" onPress={() => this.setValue('skillVolleyball', this.state.skillVolleyball)}/>
             </View>
 
             {/*TENNIS SKILL LEVEL*/}
@@ -161,7 +163,7 @@ class HomeScreen extends Component{
                 onChangeText={(text) => {this.setState({skillTennis: text});}}
               />
                 <View style={styles.spacing}></View>
-              <Button title="Submit" onPress={this.setValue('skillTennis', this.state.skillTennis)}/>
+              <Button title="Submit" onPress={() => this.setValue('skillTennis', this.state.skillTennis)}/>
             </View>
           </View>
         </View>
@@ -333,26 +335,40 @@ class CreateGameScreen extends Component {
       total_players: null,
       players: null,
       competative: false,
+      isVisible: false,
+      date: null,
+      selectedSport: null,
     }
   }
 
-  handleTotal = (num) => {
-    this.setState({total_players: num});
-    console.log('total players'+this.state.total_players);
+  setSport = (val) => {
+    this.setState({
+      selectedSport: val
+    });
   }
 
-  handlePlayers = (num) => {
-    this.setState({players: num});
-    console.log("players: " + this.state.players);
+  showPicker = () => {
+    this.setState({
+      isVisible: true
+    });
   }
 
-  toggleSwitch = (value) => {
-    this.setState({competative: value});
-    console.log("Hello: " + this.state.competative);
+  hidePicker = () => {
+    this.setState({
+      isVisible: false
+    });
+  }
+
+  handleDate = (date) => {
+    console.warn("A date has been picked: ", date);
+    this.setState({
+      date: date
+    });
+    this.hidePicker();
   }
 
   createGame = () => {
-    console.log('pressed: ' + this.state.total_players + " "+ this.state.players +" "+this.state.competative)
+    console.log('pressed: ' + " "+ this.state.location + this.state.total_players + " "+ this.state.players +" "+this.state.competative + " " + this.state.date + " " + this.state.selectedSport)
   }
 
   render() {
@@ -360,13 +376,34 @@ class CreateGameScreen extends Component {
       <DismissKeyboard>
         <View style={styles.container}>
           <Text> Hello {this.state.location}</Text>
+          <Button title='Select Date and Time' onPress={this.showPicker}/>
+          <DateTimePickerModal
+            isVisible={this.state.isVisible}
+            mode='datetime'
+            minuteInterval={15}
+            onConfirm={this.handleDate}
+            onCancel={this.hidePicker}
+            is24Hour={false}
+          />
+          <Text>{JSON.stringify(this.state.date)}</Text>
+          <RNPickerSelect
+            useNativeAndroidPickerStyle={false}
+            placeholder={{ label: 'Select Sport', value: null}}
+            onValueChange={(value) => {this.setSport(value)}}
+            items={[
+              { label: 'Soccer', value: 'Soccer'},
+              { label: 'Volleyball', value: 'Volleyball'},
+              { label: 'Basketball', value: 'Basketball'},
+              { label: 'Tennis', value: 'Tennis'},
+            ]}
+          />
           <Text>Total Players?</Text>
-          <TextInput value={this.state.total_players} name='total_players' placeholder={'Enter Number'} keyboardType='numeric' onChangeText={this.handleTotal}/>
+          <TextInput value={this.state.total_players} name='total_players' placeholder={'Enter Number'} keyboardType='numeric' onChangeText={(text) => {this.setState({total_players: text})}}/>
           <Text>Players Needed?</Text>
-          <TextInput value={this.state.players} name='players' placeholder={'Enter Number'} keyboardType='numeric' onChangeText={this.handlePlayers}/>
+          <TextInput value={this.state.players} name='players' placeholder={'Enter Number'} keyboardType='numeric' onChangeText={(text) => {this.setState({players: text})}}/>
           <Text>Competetive?</Text> 
           <Switch 
-            onValueChange={this.toggleSwitch} 
+            onValueChange={(val) => {this.setState({competative: val})}} 
             value={this.state.competative}
             trackColor={{ false: '#767577', true: '#81b0ff'}}
           />
