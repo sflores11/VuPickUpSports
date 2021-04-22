@@ -191,7 +191,6 @@ class GameScreen extends Component {
   }
 
   renderItem = (item) => {
-    console.log(this.state.data[0].date);
     return( 
       <View style={styles.container}>
         <TouchableOpacity style={styles.gameInfo} onPress={()=>{this.props.navigation.navigate('GameInfo', {gameName: item.name})}}>
@@ -336,7 +335,7 @@ class CreateGameScreen extends Component {
       players: null,
       competative: false,
       isVisible: false,
-      date: null,
+      date: new Date(),
       selectedSport: null,
     }
   }
@@ -360,7 +359,6 @@ class CreateGameScreen extends Component {
   }
 
   handleDate = (date) => {
-    console.warn("A date has been picked: ", date);
     this.setState({
       date: date
     });
@@ -368,7 +366,35 @@ class CreateGameScreen extends Component {
   }
 
   createGame = () => {
-    console.log('pressed: ' + " "+ this.state.location + this.state.total_players + " "+ this.state.players +" "+this.state.competative + " " + this.state.date + " " + this.state.selectedSport)
+    let date_data = this.state.date;
+    var tod = "am";
+    let a = date_data.getMonth() + 1; 
+    let b = date_data.getDate();
+    let date = a + "/" + b; 
+    let c = this.state.date.getHours();
+    if ( c === 0 ) {
+      c = 12;
+    }
+    else if( c >= 12) {
+      tod = "pm";
+      c = c-12;
+      if ( c === 0 ) {
+        c = 12;
+      }
+    }
+    let d = this.state.date.getMinutes();
+    let time = c + ':' + d + tod;
+    const data = {
+      'location': this.state.location,
+      'total_players': this.state.total_players,
+      'num_players': this.state.total_players - this.state.players,
+      'competative': this.state.competative,
+      'date': date,
+      'time': time,
+      'sport': this.state.selectedSport,
+      'posted': new Date(),
+    };
+    console.log('pressed: ' + data.num_players);
   }
 
   render() {
@@ -385,9 +411,15 @@ class CreateGameScreen extends Component {
             onCancel={this.hidePicker}
             is24Hour={false}
           />
-          <Text>{JSON.stringify(this.state.date)}</Text>
+          <Text>{this.state.date.toDateString()}</Text>
+          <Text>{this.state.date.toTimeString()}</Text>
           <RNPickerSelect
-            useNativeAndroidPickerStyle={false}
+            style={{            
+              inputIOS: {
+                alignSelf: 'center',
+                padding: 10
+              }
+            }}
             placeholder={{ label: 'Select Sport', value: null}}
             onValueChange={(value) => {this.setSport(value)}}
             items={[
@@ -531,5 +563,5 @@ const styles = StyleSheet.create({
     borderTopWidth: 2,
     borderColor: "blue",
     padding: 25,
-  }
+  },
 });
