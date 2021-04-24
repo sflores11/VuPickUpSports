@@ -466,20 +466,69 @@ class GameInfoScreen extends Component {
       players: null,
       joinShow: true,
       leaveShow: false,
-      token: null,
     };
   }
 
-  componentDidMount() {
-    const token = this.getToken();
-    if(token) {
-      this.setState({
-        joinShow: false,
-        leaveShow: true,
-      });
+  // setJoinShow = async() => {
+  //   try {
+  //     await AsyncStorage.setItem('joinShow', 'true');
+  //   } catch(e) {
+  //     console.log(e);
+  //   }
+  // }
+
+  // getJoinShow = async() => {
+  //   try {
+  //     const show = await AsyncStorage.getItem('joinShow');
+  //     if(show === 'true') {
+  //       return true;
+  //     } else {
+  //       return false;
+  //     }
+  //   } catch(e) {
+  //     console.log(e);
+  //   }
+  // }
+
+  setLeaveShow = async(val) => {
+    try {
+      if(val) {
+        await AsyncStorage.setItem('leaveShow', 'true');
+      }
+      else {
+        await AsyncStorage.setItem('leaveShow', 'false');
+      }
+    } catch(e) {
+      console.log(e);
     }
+  }
+
+  getLeaveShow = async() => {
+    try {
+      const show = await AsyncStorage.getItem('leaveShow');
+      console.log('yerrr' + show);
+      if(show === 'true') {
+        this.setState({
+          leaveShow: true,
+          joinShow: false,
+        })
+      } else {
+        console.log('raggidu');
+        this.setState({
+          leaveShow: false,
+          joinShow: true,
+        })
+        return false;
+      }
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  componentDidMount() {
     const d = require('./assets/game-data.json');
     const loc = this.props.route.params.gameName;
+    this.getLeaveShow();
     this.setState({
       data: d[loc],
       players: d[loc]['players'],
@@ -487,34 +536,8 @@ class GameInfoScreen extends Component {
     });
   }
 
-  getToken = async() => {
-    try {
-      return await AsyncStorage.getItem('token');
-    } catch(e) {
-      console.log(e);
-    }
-  }
-
-  setToken = async() => {
-    try {
-      console.log("im here");
-      await AsyncStorage.setItem('token', '1');
-    } catch(e) {
-      console.log(e);
-    }
-  }
-
-  deleteToken = async() => {
-    try {
-      await AsyncStorage.removeItem('token');
-      console.log('deleted');
-    } catch(e) {
-      console.log(e);
-    }
-  }
-
   handleJoin = () => {
-    this.setToken();
+    this.setLeaveShow(true);
     this.setState({
       joinShow: false,
       leaveShow: true,
@@ -527,7 +550,7 @@ class GameInfoScreen extends Component {
   }
 
   handleLeave = () => {
-    this.deleteToken();
+    this.setLeaveShow(false);
     this.setState({
       joinShow: true,
       leaveShow: false,
