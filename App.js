@@ -506,14 +506,12 @@ class GameInfoScreen extends Component {
   getLeaveShow = async() => {
     try {
       const show = await AsyncStorage.getItem('leaveShow');
-      console.log('yerrr' + show);
       if(show === 'true') {
         this.setState({
           leaveShow: true,
           joinShow: false,
         })
       } else {
-        console.log('raggidu');
         this.setState({
           leaveShow: false,
           joinShow: true,
