@@ -177,7 +177,7 @@ class GameScreen extends Component {
     super(props);
     this.state = {
       data: [],
-      location: ""
+      location: "",
     };
   }
 
@@ -464,16 +464,79 @@ class GameInfoScreen extends Component {
     this.state = {
       data: [],
       players: null,
+      joinShow: true,
+      leaveShow: false,
+      token: null,
     };
   }
 
   componentDidMount() {
+    const token = this.getToken();
+    if(token) {
+      this.setState({
+        joinShow: false,
+        leaveShow: true,
+      });
+    }
     const d = require('./assets/game-data.json');
     const loc = this.props.route.params.gameName;
     this.setState({
       data: d[loc],
-      players: d[loc]['players']
+      players: d[loc]['players'],
+      total_players: d[loc]['players_needed'],
     });
+  }
+
+  getToken = async() => {
+    try {
+      return await AsyncStorage.getItem('token');
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  setToken = async() => {
+    try {
+      console.log("im here");
+      await AsyncStorage.setItem('token', '1');
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  deleteToken = async() => {
+    try {
+      await AsyncStorage.removeItem('token');
+      console.log('deleted');
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  handleJoin = () => {
+    this.setToken();
+    this.setState({
+      joinShow: false,
+      leaveShow: true,
+    });
+    if(this.state.players + 1 <= this.state.total_players) {
+      this.setState({players: this.state.players + 1});
+    } else {
+      Alert.alert('Alert', 'This game is full sorry :(');
+    }
+  }
+
+  handleLeave = () => {
+    this.deleteToken();
+    this.setState({
+      joinShow: true,
+      leaveShow: false,
+    });
+    if(this.state.players - 1 > 0) {
+      this.setState({players: this.state.players - 1});
+    } else {
+      Alert.alert('Alert', 'This game needs atleast one player');
+    }
   }
 
   render() {
@@ -492,8 +555,12 @@ class GameInfoScreen extends Component {
         <Text>Player 3 Skill Level</Text>
         <Text>Competetive</Text>
         <Text>Posted at {data.posted}</Text>
-        <Button title="Join Game" onPress={()=>{this.setState({players: this.state.players + 1})}}/>
-        <Button title="Leave Game" onPress={()=>{this.setState({players: this.state.players - 1})}}/>
+        {this.state.joinShow ? (
+          <Button title="Join Game" onPress={()=>{this.handleJoin()}}/>
+        ) : null}
+        {this.state.leaveShow ? (
+          <Button title="Leave Game" onPress={()=>{this.handleLeave()}}/>
+        ) : null}
       </View>
     )
   }
