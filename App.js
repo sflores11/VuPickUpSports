@@ -182,10 +182,43 @@ class GameScreen extends Component {
   }
 
   componentDidMount() {
+    this.findLocalGames();
+  }
+
+  findLocalGames = async() => {
+    let games = [];
     const d = require('./assets/test-data.json');
     const loc = this.props.route.params.location;
+    games = d[loc];
+    try {
+      const gameID = await AsyncStorage.getItem('gameID');
+      if(gameID != null){
+        const ID = parseInt(gameID);
+        for (let i = 0; i < ID; i++) {
+          let gameKey = i.toString();
+          const localGame = await AsyncStorage.getItem(gameKey);
+          if(localGame != null ){
+            const game = JSON.parse(localGame);
+            if(game.location == loc){
+              let displayed = false;
+              for (let j = 0; j < games.length; j++) {
+                if(games[j].id == game.id){
+                  displayed = true;
+                }
+              }
+              if(!displayed){
+                games.push(game);
+              }
+            }
+          }
+        }
+      }
+    } catch(e) {
+      console.log(e);
+    }    
+
     this.setState({
-      data: d[loc],
+      data: games,
       location: loc
     });
   }
@@ -193,7 +226,7 @@ class GameScreen extends Component {
   renderItem = (item) => {
     return( 
       <View style={styles.container}>
-        <TouchableOpacity style={styles.gameInfo} onPress={()=>{this.props.navigation.navigate('GameInfo', {gameName: item.name})}}>
+        <TouchableOpacity style={styles.gameInfo} onPress={()=>{this.props.navigation.navigate('GameInfo', {game: item})}}>
           <Text style={styles.title}>{item.name}</Text>
           <Text style={styles.title}>Date: {item.date} {item.time}</Text>
           <Text style={styles.title}>{item.sport}</Text>
@@ -365,7 +398,7 @@ class CreateGameScreen extends Component {
     this.hidePicker();
   }
 
-  createGame = () => {
+  createGame = async() => {
     if (!this.state.selectedSport) {
       Alert.alert('Alert', 'Must select a sport');
       return;
@@ -396,17 +429,54 @@ class CreateGameScreen extends Component {
     }
     let d = this.state.date.getMinutes();
     let time = c + ':' + d + tod;
+    let newGameID = null;
+    let newGameName = null;
+    let gameID = null;
+
+    try {
+      gameID = await AsyncStorage.getItem('gameID');
+    } catch(e) {
+      console.log(e);
+    }
+
+    if(gameID == null){
+      gameID = 0;
+    }else{
+      gameID = parseInt(gameID);
+    }
+
+    newGameID = gameID.toString();
+    newGameName = "Game"; //Add an option for user to choose name?
+    gameID++;
+
+    try {
+      await AsyncStorage.setItem('gameID', gameID.toString());
+    } catch(e) {
+      console.log(e);
+    }
+
+    console.log(typeof newGameID);
     const data = {
+      'id': gameID,
+      'name': newGameName,
       'location': this.state.location,
-      'total_players': this.state.total_players,
-      'num_players': this.state.total_players - this.state.players,
+      'players_needed': this.state.total_players,
+      'players': this.state.total_players - this.state.players,
       'competative': this.state.competative,
       'date': date,
       'time': time,
       'sport': this.state.selectedSport,
       'posted': new Date(),
     };
-    console.log('pressed: ' + data.num_players);
+
+    try {
+      const newGame = JSON.stringify(data);
+      await AsyncStorage.setItem(newGameID, newGame);
+      console.log(data);
+
+    } catch(e) {
+      console.log(e);
+    }
   }
 
   render() {
@@ -427,7 +497,7 @@ class CreateGameScreen extends Component {
           <Text>{this.state.date.toTimeString()}</Text>
           <RNPickerSelect
             style={{            
-              inputIOS: {
+              inputAndroid: {
                 alignSelf: 'center',
                 padding: 10
               }
@@ -524,13 +594,12 @@ class GameInfoScreen extends Component {
   }
 
   componentDidMount() {
-    const d = require('./assets/game-data.json');
-    const loc = this.props.route.params.gameName;
+    const game = this.props.route.params.game;
     this.getLeaveShow();
     this.setState({
-      data: d[loc],
-      players: d[loc]['players'],
-      total_players: d[loc]['players_needed'],
+      data: game,
+      players: game.players,
+      total_players: game.players_needed,
     });
   }
 
