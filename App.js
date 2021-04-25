@@ -497,7 +497,7 @@ class CreateGameScreen extends Component {
           <Text>{this.state.date.toTimeString()}</Text>
           <RNPickerSelect
             style={{            
-              inputAndroid: {
+              inputIOS: {
                 alignSelf: 'center',
                 padding: 10
               }
