@@ -1,37 +1,53 @@
 {
     "WEST_SOCCER": [
         {
+            "id": -100,
             "name": "Game 1",
             "date": "4/22",
-            "time": "3:45",
+            "time": "3:45pm",
             "sport": "Soccer",
-            "players": "8/14"
+            "players_needed": 14,
+            "players": 8,
+            "competative": true,
+            "posted": "3:02pm"
         },
 
         {
+            "id": -99,
             "name": "Game 2",
             "date": "4/23",
-            "time": "7:00",
+            "time": "7:00pm",
             "sport": "Soccer",
-            "players": "19/22"
+            "players_needed": 12,
+            "players": 6,
+            "competative": true,
+            "posted": "3:15pm"
         }
     ],
 
     "ST_MARY": [
         {
+            "id": -98,
             "name": "Game 3",
             "date": "4/22",
             "time": "5:55",
             "sport": "Basketball",
-            "players": "10/12"
+            "players_needed": 12,
+            "players": 10,
+            "competative": false,
+            "posted": "3:15pm"
         },
         
         {
+            "id": -97,
             "name": "Game 4",
             "date": "4/23",
             "time": "7:30",
             "sport": "Basketball",
-            "players": "9/10"
+            "players_needed": 10,
+            "players": 9,
+            "competative": true,
+            "posted": "3:15pm"
         }
     ],
 
@@ -41,31 +57,43 @@
 
     "WEST_VOLLEYBALL": [
         {
+            "id": -96,
             "name": "Game 5",
             "date": "4/25",
             "time": "5:00",
             "sport": "Volleyball",
-            "players": "6/8"
+            "players_needed": 8,
+            "players": 6,
+            "competative": false,
+            "posted": "3:15pm"
         }
     ],
 
     "WEST_BASKETBALL": [
         {
+            "id": -95,
             "name": "Game 5",
             "date": "4/22",
             "time": "5:30",
             "sport": "Basketball",
-            "players": "4/10"
+            "players_needed": 8,
+            "players": 5,
+            "competative": true,
+            "posted": "3:15pm"
         }
     ],
 
     "PIKE": [
         {
+            "id": -94,
             "name": "Game 6",
             "date": "4/26",
             "time": "5:00",
             "sport": "Soccer",
-            "players": "5/10"
+            "players_needed": 10,
+            "players": 5,
+            "competative": false,
+            "posted": "3:15pm"
         }
     ],
 
@@ -75,123 +103,179 @@
 
     "SOUTH_BASKETBALL": [
         {
+            "id": -93,
             "name": "Game 7",
             "date": "4/22",
             "time": "5:30",
             "sport": "Basketball",
-            "players": "10/10"
+            "players_needed": 10,
+            "players": 10,
+            "competative": true,
+            "posted": "3:15pm"
         },
 
         {
+            "id": -92,
             "name": "Game 8",
             "date": "4/22",
             "time": "6:30",
             "sport": "Basketball",
-            "players": "10/10"
+            "players_needed": 10,
+            "players": 10,
+            "competative": true,
+            "posted": "3:15pm"
         },
 
         {
+            "id": -91,
             "name": "Game 9",
             "date": "4/22",
             "time": "7:30",
             "sport": "Basketball",
-            "players": "8/10"
+            "players_needed": 10,
+            "players": 8,
+            "competative": true,
+            "posted": "3:15pm"
         }
     ],
 
     "ALUMNI": [
         {
+            "id": -90,
             "name": "Game 10",
             "date": "4/22",
             "time": "6:00",
             "sport": "Basketball",
-            "players": "10/10"
+            "players_needed": 11,
+            "players": 12,
+            "competative": false,
+            "posted": "3:15pm"
         },
 
         {
+            "id": -89,
             "name": "Game 11",
             "date": "4/22",
             "time": "7:00",
             "sport": "Basketball",
-            "players": "8/10"
+            "players_needed": 10,
+            "players": 8,
+            "competative": false,
+            "posted": "3:15pm"
         },
 
         {
+            "id": -88,
             "name": "Game 12",
             "date": "4/22",
             "time": "8:00",
             "sport": "Basketball",
-            "players": "10/10"
+            "players_needed": 10,
+            "players": 10,
+            "competative": true,
+            "posted": "3:15pm"
         },
 
         {
+            "id": -87,
             "name": "Game 13",
             "date": "4/23",
             "time": "9:00",
             "sport": "Basketball",
-            "players": "3/10"
+            "players_needed": 10,
+            "players": 7,
+            "competative": true,
+            "posted": "3:15pm"
         },
 
         {
+            "id": -86,
             "name": "Game 14",
             "date": "4/24",
             "time": "5:30",
             "sport": "Basketball",
-            "players": "7/10"
+            "players_needed": 10,
+            "players": 4,
+            "competative": true,
+            "posted": "3:15pm"
         }
     ],
 
     "AUSTIN": [
         {
+            "id": -85,
             "name": "Game 15",
             "date": "4/26",
             "time": "6:00",
-            "sport": "Softball",
-            "players": "19/24"
+            "sport": "Soccer",
+            "players_needed": 24,
+            "players": 19,
+            "competative": false,
+            "posted": "3:15pm"
         }
     ],
 
     "MAIN_TENNIS": [
         {
+            "id": -84,
             "name": "Game 16",
             "date": "4/23",
             "time": "6:00",
             "sport": "Tennis",
-            "players": "1/2"
+            "players_needed": 2,
+            "players": 1,
+            "competative": true,
+            "posted": "3:15pm"
         },
 
         {
+            "id": -83,
             "name": "Game 17",
             "date": "4/24",
             "time": "6:15",
             "sport": "Tennis",
-            "players": "3/4"
+            "players_needed": 4,
+            "players": 3,
+            "competative": false,
+            "posted": "3:15pm"
         }
     ],
 
     "MAIN_BASKETBALL": [
         {
+            "id": -82,
             "name": "Game 18",
             "date": "4/22",
             "time": "6:00",
             "sport": "Basketball",
-            "players": "4/6"
+            "players_needed": 6,
+            "players": 4,
+            "competative": false,
+            "posted": "3:15pm"
         },
 
         {
+            "id": -81,
             "name": "Game 19",
             "date": "4/22",
             "time": "7:00",
             "sport": "Basketball",
-            "players": "5/8"
+            "players_needed": 8,
+            "players": 5,
+            "competative": true,
+            "posted": "3:15pm"
         },
 
         {
+            "id": -80,
             "name": "Game 20",
             "date": "4/24",
             "time": "8:00",
             "sport": "Basketball",
-            "players": "6/6"
+            "players_needed": 6,
+            "players": 6,
+            "competative": true,
+            "posted": "3:15pm"
         }
     ]
 }

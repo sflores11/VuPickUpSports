@@ -1,11 +1,19 @@
 import 'react-native-gesture-handler';
 import React, {Component} from 'react';
-import { StyleSheet, Text, TextInput, View, Button, FlatList, Alert} from 'react-native';
+import { StyleSheet, Text, Switch, TextInput, View, Button, FlatList, TouchableWithoutFeedback, Keyboard, Alert, Vibration} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Swiper from 'react-native-swiper';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import RNPickerSelect from 'react-native-picker-select';
+
+const DismissKeyboard = ({ children }) => (
+  <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+    {children}
+  </TouchableWithoutFeedback>
+);
 
 class HomeScreen extends Component{
   constructor(props) {
@@ -96,7 +104,7 @@ class HomeScreen extends Component{
                 onChangeText={(text) => {this.setState({name: text});}}
               />
                 <View style={styles.spacing}></View>
-              <Button title="Submit" onPress={this.setValue('name', this.state.name)}/>
+              <Button title="Submit" onPress={() => this.setValue('name', this.state.name)}/>
             </View>
           </View>
 
@@ -116,7 +124,7 @@ class HomeScreen extends Component{
                 onChangeText={(text) => {this.setState({skillBasketball: text});}}
               />
                 <View style={styles.spacing}></View>
-              <Button title="Submit" onPress={this.setValue('skillBasketball', this.state.skillBasketball)}/>
+              <Button title="Submit" onPress={() => this.setValue('skillBasketball', this.state.skillBasketball)}/>
             </View>
 
             {/*SOCCER SKILL LEVEL*/}
@@ -129,7 +137,7 @@ class HomeScreen extends Component{
                 onChangeText={(text) => {this.setState({skillSoccer: text});}}
               />
                 <View style={styles.spacing}></View>
-              <Button title="Submit" onPress={this.setValue('skillSoccer', this.state.skillSoccer)}/>
+              <Button title="Submit" onPress={() => this.setValue('skillSoccer', this.state.skillSoccer)}/>
             </View>
 
             {/*VOLLEYBALL SKILL LEVEL*/}
@@ -142,7 +150,7 @@ class HomeScreen extends Component{
                 onChangeText={(text) => {this.setState({skillVolleyball: text});}}
               />
                 <View style={styles.spacing}></View>
-              <Button title="Submit" onPress={this.setValue('skillVolleyball', this.state.skillVolleyball)}/>
+              <Button title="Submit" onPress={() => this.setValue('skillVolleyball', this.state.skillVolleyball)}/>
             </View>
 
             {/*TENNIS SKILL LEVEL*/}
@@ -155,7 +163,7 @@ class HomeScreen extends Component{
                 onChangeText={(text) => {this.setState({skillTennis: text});}}
               />
                 <View style={styles.spacing}></View>
-              <Button title="Submit" onPress={this.setValue('skillTennis', this.state.skillTennis)}/>
+              <Button title="Submit" onPress={() => this.setValue('skillTennis', this.state.skillTennis)}/>
             </View>
           </View>
         </View>
@@ -169,26 +177,58 @@ class GameScreen extends Component {
     super(props);
     this.state = {
       data: [],
-      location: ""
+      location: "",
     };
   }
 
   componentDidMount() {
+    this.findLocalGames();
+  }
+
+  findLocalGames = async() => {
+    let games = [];
     const d = require('./assets/test-data.json');
     const loc = this.props.route.params.location;
+    games = d[loc];
+    try {
+      const gameID = await AsyncStorage.getItem('gameID');
+      if(gameID != null){
+        const ID = parseInt(gameID);
+        for (let i = 0; i < ID; i++) {
+          let gameKey = i.toString();
+          const localGame = await AsyncStorage.getItem(gameKey);
+          if(localGame != null ){
+            const game = JSON.parse(localGame);
+            if(game.location == loc){
+              let displayed = false;
+              for (let j = 0; j < games.length; j++) {
+                if(games[j].id == game.id){
+                  displayed = true;
+                }
+              }
+              if(!displayed){
+                games.push(game);
+              }
+            }
+          }
+        }
+      }
+    } catch(e) {
+      console.log(e);
+    }    
+
     this.setState({
-      data: d[loc],
+      data: games,
       location: loc
     });
   }
 
   renderItem = (item) => {
-    console.log(this.state.data[0].date);
     return( 
       <View style={styles.container}>
-        <TouchableOpacity style={styles.gameInfo} onPress={()=>{this.props.navigation.navigate('GameInfo', {gameName: item.name})}}>
+        <TouchableOpacity style={styles.gameInfo} onPress={()=>{this.props.navigation.navigate('GameInfo', {game: item})}}>
           <Text style={styles.title}>{item.name}</Text>
-          <Text style={styles.title}>{item.date} {item.time}</Text>
+          <Text style={styles.title}>Date: {item.date} {item.time}</Text>
           <Text style={styles.title}>{item.sport}</Text>
         </TouchableOpacity>
       </View>
@@ -324,13 +364,166 @@ class CreateGameScreen extends Component {
     super(props);
     this.state = {
       location: this.props.route.params.location,
+      total_players: null,
+      players: null,
+      competative: false,
+      isVisible: false,
+      date: new Date(),
+      selectedSport: null,
     }
   }
+
+  setSport = (val) => {
+    this.setState({
+      selectedSport: val
+    });
+  }
+
+  showPicker = () => {
+    this.setState({
+      isVisible: true
+    });
+  }
+
+  hidePicker = () => {
+    this.setState({
+      isVisible: false
+    });
+  }
+
+  handleDate = (date) => {
+    this.setState({
+      date: date
+    });
+    this.hidePicker();
+  }
+
+  createGame = async() => {
+    if (!this.state.selectedSport) {
+      Alert.alert('Alert', 'Must select a sport');
+      return;
+    }
+    if (!this.state.total_players) {
+      Alert.alert('Alert', 'Must have total players needed');
+      return;
+    }
+    if (!this.state.players) {
+      Alert.alert('Alert', 'Must have amount of players needed');
+      return;
+    }
+    let date_data = this.state.date;
+    var tod = "am";
+    let a = date_data.getMonth() + 1; 
+    let b = date_data.getDate();
+    let date = a + "/" + b; 
+    let c = this.state.date.getHours();
+    if ( c === 0 ) {
+      c = 12;
+    }
+    else if( c >= 12) {
+      tod = "pm";
+      c = c-12;
+      if ( c === 0 ) {
+        c = 12;
+      }
+    }
+    let d = this.state.date.getMinutes();
+    let time = c + ':' + d + tod;
+    let newGameID = null;
+    let newGameName = null;
+    let gameID = null;
+
+    try {
+      gameID = await AsyncStorage.getItem('gameID');
+    } catch(e) {
+      console.log(e);
+    }
+
+    if(gameID == null){
+      gameID = 0;
+    }else{
+      gameID = parseInt(gameID);
+    }
+
+    newGameID = gameID.toString();
+    newGameName = "Game"; //Add an option for user to choose name?
+    gameID++;
+
+    try {
+      await AsyncStorage.setItem('gameID', gameID.toString());
+    } catch(e) {
+      console.log(e);
+    }
+
+    console.log(typeof newGameID);
+    const data = {
+      'id': gameID,
+      'name': newGameName,
+      'location': this.state.location,
+      'players_needed': this.state.total_players,
+      'players': this.state.total_players - this.state.players,
+      'competative': this.state.competative,
+      'date': date,
+      'time': time,
+      'sport': this.state.selectedSport,
+      'posted': new Date(),
+    };
+
+    try {
+      const newGame = JSON.stringify(data);
+      await AsyncStorage.setItem(newGameID, newGame);
+      console.log(data);
+
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
   render() {
     return (
-      <View style={styles.container}>
-        <Text> Hello {this.state.location}</Text>
-      </View>
+      <DismissKeyboard>
+        <View style={styles.container}>
+          <Text> Hello {this.state.location}</Text>
+          <Button title='Select Date and Time' onPress={this.showPicker}/>
+          <DateTimePickerModal
+            isVisible={this.state.isVisible}
+            mode='datetime'
+            minuteInterval={15}
+            onConfirm={this.handleDate}
+            onCancel={this.hidePicker}
+            is24Hour={false}
+          />
+          <Text>{this.state.date.toDateString()}</Text>
+          <Text>{this.state.date.toTimeString()}</Text>
+          <RNPickerSelect
+            style={{            
+              inputAndroid: {
+                alignSelf: 'center',
+                padding: 10
+              }
+            }}
+            placeholder={{ label: 'Select Sport', value: null}}
+            onValueChange={(value) => {this.setSport(value)}}
+            items={[
+              { label: 'Soccer', value: 'Soccer'},
+              { label: 'Volleyball', value: 'Volleyball'},
+              { label: 'Basketball', value: 'Basketball'},
+              { label: 'Tennis', value: 'Tennis'},
+            ]}
+          />
+          <Text>Total Players?</Text>
+          <TextInput value={this.state.total_players} name='total_players' placeholder={'Enter Number'} keyboardType='numeric' onChangeText={(text) => {this.setState({total_players: text})}}/>
+          <Text>Players Needed?</Text>
+          <TextInput value={this.state.players} name='players' placeholder={'Enter Number'} keyboardType='numeric' onChangeText={(text) => {this.setState({players: text})}}/>
+          <Text>Competetive?</Text> 
+          <Switch 
+            onValueChange={(val) => {this.setState({competative: val})}} 
+            value={this.state.competative}
+            trackColor={{ false: '#767577', true: '#81b0ff'}}
+          />
+          <Button title="Create Game!" onPress={() => this.createGame()}/>
+        </View>
+      </DismissKeyboard>
     )
   }
 }
@@ -341,15 +534,99 @@ class GameInfoScreen extends Component {
     this.state = {
       data: [],
       players: null,
+      joinShow: true,
+      leaveShow: false,
     };
   }
+
+  // setJoinShow = async() => {
+  //   try {
+  //     await AsyncStorage.setItem('joinShow', 'true');
+  //   } catch(e) {
+  //     console.log(e);
+  //   }
+  // }
+
+  // getJoinShow = async() => {
+  //   try {
+  //     const show = await AsyncStorage.getItem('joinShow');
+  //     if(show === 'true') {
+  //       return true;
+  //     } else {
+  //       return false;
+  //     }
+  //   } catch(e) {
+  //     console.log(e);
+  //   }
+  // }
+
+  setLeaveShow = async(val) => {
+    try {
+      if(val) {
+        await AsyncStorage.setItem('leaveShow', 'true');
+      }
+      else {
+        await AsyncStorage.setItem('leaveShow', 'false');
+      }
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  getLeaveShow = async() => {
+    try {
+      const show = await AsyncStorage.getItem('leaveShow');
+      if(show === 'true') {
+        this.setState({
+          leaveShow: true,
+          joinShow: false,
+        })
+      } else {
+        this.setState({
+          leaveShow: false,
+          joinShow: true,
+        })
+        return false;
+      }
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
   componentDidMount() {
-    const d = require('./assets/game-data.json');
-    const loc = this.props.route.params.gameName;
+    const game = this.props.route.params.game;
+    this.getLeaveShow();
     this.setState({
-      data: d[loc],
-      players: d[loc]['players']
+      data: game,
+      players: game.players,
+      total_players: game.players_needed,
     });
+  }
+
+  handleJoin = () => {
+    this.setLeaveShow(true);
+    this.setState({
+      joinShow: false,
+      leaveShow: true,
+    });
+    if(this.state.players + 1 <= this.state.total_players) {
+      this.setState({players: this.state.players + 1});
+    } else {
+      Alert.alert('Alert', 'This game is full sorry :(');
+    }
+  }
+
+  handleLeave = () => {
+    this.setLeaveShow(false);
+    this.setState({
+      joinShow: true,
+      leaveShow: false,
+    });
+    if(this.state.players - 1 > 0) {
+      this.setState({players: this.state.players - 1});
+    } else {
+      Alert.alert('Alert', 'This game needs atleast one player');
+    }
   }
 
   render() {
@@ -368,8 +645,12 @@ class GameInfoScreen extends Component {
         <Text>Player 3 Skill Level</Text>
         <Text>Competetive</Text>
         <Text>Posted at {data.posted}</Text>
-        <Button title="Join Game" onPress={()=>{this.setState({players: this.state.players + 1})}}/>
-        <Button title="Leave Game" onPress={()=>{this.setState({players: this.state.players - 1})}}/>
+        {this.state.joinShow ? (
+          <Button title="Join Game" onPress={()=>{this.handleJoin()}}/>
+        ) : null}
+        {this.state.leaveShow ? (
+          <Button title="Leave Game" onPress={()=>{this.handleLeave()}}/>
+        ) : null}
       </View>
     )
   }
@@ -451,5 +732,5 @@ const styles = StyleSheet.create({
     borderTopWidth: 2,
     borderColor: "blue",
     padding: 25,
-  }
+  },
 });
