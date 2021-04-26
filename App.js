@@ -469,27 +469,6 @@ class GameInfoScreen extends Component {
     };
   }
 
-  // setJoinShow = async() => {
-  //   try {
-  //     await AsyncStorage.setItem('joinShow', 'true');
-  //   } catch(e) {
-  //     console.log(e);
-  //   }
-  // }
-
-  // getJoinShow = async() => {
-  //   try {
-  //     const show = await AsyncStorage.getItem('joinShow');
-  //     if(show === 'true') {
-  //       return true;
-  //     } else {
-  //       return false;
-  //     }
-  //   } catch(e) {
-  //     console.log(e);
-  //   }
-  // }
-
   setLeaveShow = async(val) => {
     try {
       if(val) {
@@ -560,6 +539,14 @@ class GameInfoScreen extends Component {
     }
   }
 
+  renderItem = (item) => {
+    return(
+      <View style={{bottom: 2}}>
+        <Text>{item.name} {item.skill}</Text>
+      </View>   
+    );
+  }
+
   render() {
     console.log(this.state.data);
     console.log(this.state.players);
@@ -571,9 +558,7 @@ class GameInfoScreen extends Component {
         <Text>Players: {this.state.players}/{data.players_needed}</Text>
         <Text> Time: {data.time}</Text>
         <Text>Checked In Players: </Text>
-        <Text>Player 1 Skill Level</Text>
-        <Text>Player 2 Skill Level</Text>
-        <Text>Player 3 Skill Level</Text>
+        <FlatList data={data.active_players} renderItem={({item}) => this.renderItem(item)} keyExtractor={(item, index) => index.toString()}/>
         <Text>Competetive</Text>
         <Text>Posted at {data.posted}</Text>
         {this.state.joinShow ? (
