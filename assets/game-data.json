@@ -6,6 +6,20 @@
         "players_needed": 14,
         "players": 8,
         "competative": true,
-        "posted": "3:02pm"
+        "posted": "3:02pm",
+        "active_players": [
+            {
+                "name": "Andrew",
+                "skill": 6
+            },
+            {
+                "name": "Sebastian",
+                "skill": 7
+            },
+            {
+                "name": "Justin",
+                "skill": 7
+            }
+        ]
     }
 }

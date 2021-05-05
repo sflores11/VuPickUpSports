@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, {Component} from 'react';
-import { StyleSheet, Text, Switch, TextInput, View, Button, FlatList, TouchableWithoutFeedback, Keyboard, Alert, Vibration} from 'react-native';
+import { RefreshControl, Image, StyleSheet, Text, Switch, TextInput, View, Button, FlatList, TouchableWithoutFeedback, Keyboard, Alert, Vibration} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -61,10 +61,22 @@ class HomeScreen extends Component{
     }
   }
 
+  log_out = async() => {
+    try {
+      await AsyncStorage.removeItem('status').then( () => {
+        this.props.navigation.navigate('Login');
+      })
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
   render(){
     return(
       <Swiper>
         <View style={styles.container}>
+          <Text style={styles.title2}>Where would you like to play?</Text>
+		      <Text style={styles.title}></Text>
           <Text style={styles.title}>West Campus</Text>
           <Button title="Soccer Fields" onPress={()=> this.props.navigation.navigate('Games', {location: "WEST_SOCCER"})}/>
             <View style={styles.spacing}></View> 
@@ -91,7 +103,7 @@ class HomeScreen extends Component{
           <Button title="Basketball Courts" onPress={()=> this.props.navigation.navigate('Games', {location: "MAIN_BASKETBALL"})}/>
         </View>
         <View style={styles.profileScreen}>
-          <Text style={{fontSize: 40}}>Profile Screen</Text>
+          <Text style={{fontSize: 40, color: 'navy'}}>Profile Screen</Text>
           <View alignItems="center">
 
             {/*NAME*/}
@@ -110,8 +122,8 @@ class HomeScreen extends Component{
 
           {/*EMAIL*/}
           <Text style={styles.h2}>Email: {this.state.email}</Text> 
-
-          <Text style={styles.title}>Skill Level</Text>
+          <Image source={require('./images/villanovalogo.png')} style={{width: 250, height: 200}} />
+          <Text style={styles.title3}>My Skills</Text>
           <View alignItems="center">
 
             {/*BASKETBALL SKILL LEVEL*/}
@@ -166,6 +178,7 @@ class HomeScreen extends Component{
               <Button title="Submit" onPress={() => this.setValue('skillTennis', this.state.skillTennis)}/>
             </View>
           </View>
+          <Button title="Log Out" onPress={() => this.log_out()}/>
         </View>
       </Swiper>
     );
@@ -173,23 +186,31 @@ class HomeScreen extends Component{
 }
 
 class GameScreen extends Component {
+  _isMounted = false;
+
   constructor(props) {
     super(props);
     this.state = {
       data: [],
       location: "",
+      refresh: false,
+      refreshing: false,
     };
   }
 
   componentDidMount() {
-    this.findLocalGames();
+      this.findLocalGames();  
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   findLocalGames = async() => {
     let games = [];
-    const d = require('./assets/test-data.json');
+    // const d = require('./assets/test-data.json');
     const loc = this.props.route.params.location;
-    games = d[loc];
+    // games = d[loc];
     try {
       const gameID = await AsyncStorage.getItem('gameID');
       if(gameID != null){
@@ -219,8 +240,13 @@ class GameScreen extends Component {
 
     this.setState({
       data: games,
-      location: loc
+      location: loc,
+      refresh: !this.state.refresh,
     });
+  }
+
+  onRefresh = () => {
+   this.findLocalGames();
   }
 
   renderItem = (item) => {
@@ -230,6 +256,7 @@ class GameScreen extends Component {
           <Text style={styles.title}>{item.name}</Text>
           <Text style={styles.title}>Date: {item.date} {item.time}</Text>
           <Text style={styles.title}>{item.sport}</Text>
+          <Text style={styles.title}>{item.players}/{item.players_needed}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -243,6 +270,13 @@ class GameScreen extends Component {
           data={this.state.data}
           renderItem={({item}) => this.renderItem(item)}
           keyExtractor={(item, index) => index.toString()}
+          extraData={this.state.refresh}
+          refreshControl={
+            <RefreshControl 
+              refreshing={this.state.refreshing}
+              onRefresh={this.onRefresh()}
+            />
+          }
         />
         <Button title="Create A Game" onPress={() => {this.props.navigation.navigate('CreateGame', {location: this.state.location})}}/>
       </View>
@@ -264,7 +298,6 @@ class LoginScreen extends Component {
       const sEmail = await AsyncStorage.getItem('email');
       const sPassword = await AsyncStorage.getItem('password');
       if(email === sEmail && password === sPassword) {
-        console.log('hello');
         this.setStatus();
         this.props.navigation.navigate('Home');
       }
@@ -283,7 +316,6 @@ class LoginScreen extends Component {
 
   setStatus = async() => {
     try {
-      console.log('here');
       await AsyncStorage.setItem('status', 'true');
     } catch(e) {
       console.log(e);
@@ -293,9 +325,7 @@ class LoginScreen extends Component {
   checkStatus = async() => {
     try {
       const status = await AsyncStorage.getItem('status');
-      console.log(status);
       if(status) {
-        console.log('jello');
         this.props.navigation.navigate('Home');
       }
     } catch(e) {
@@ -309,11 +339,12 @@ class LoginScreen extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <Text>LogIn</Text>
-        <TextInput name='email' value={this.state.email} placeholder='Enter Email' onChangeText={this.handleEmailChange}/>
-        <TextInput name='password' value={this.state.password} placeholder='Enter Password' onChangeText={this.handlePasswordChange}/>
-        <Button title="submit" onPress={()=> this.login(this.state.email, this.state.password)}/>
+      <View style={styles.container2}>
+        <Image source={require('./images/logo.png')} style={{width: 400, height: 300, marginTop: 100}} />
+        <Text style={styles.title3}>Log In</Text>
+        <TextInput style={{padding: 5}} name='email' value={this.state.email} placeholder='Enter Email' onChangeText={this.handleEmailChange}/>
+        <TextInput style={{padding: 5}} name='password' secureTextEntry={true} value={this.state.password} placeholder='Enter Password' onChangeText={this.handlePasswordChange}/>
+        <Button title="Submit" onPress={()=> this.login(this.state.email, this.state.password)}/>
         <Button title="Sign Up" onPress={()=> this.props.navigation.navigate('Signup')}/>
       </View>
     );
@@ -349,10 +380,11 @@ class SignUpScreen extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <Text> This is the Sign Up Screen </Text>
-        <TextInput name='email' value={this.state.email} placeholder='Enter Email' onChangeText={this.handleEmail}/>
-        <TextInput name='password' value={this.state.password} placeholder='Enter Password' onChangeText={this.handlePassword}/>
+      <View style={styles.container2}>
+        <Image source={require('./images/logo.png')} style={{width: 400, height: 300, marginTop: 100}} />
+        <Text style={styles.title3}> Create your account: </Text>
+        <TextInput style={{padding: 5}} name='email' value={this.state.email} placeholder='Enter Email' onChangeText={this.handleEmail}/>
+        <TextInput style={{padding: 5}} name='password' value={this.state.password} placeholder='Enter Password' onChangeText={this.handlePassword}/>
         <Button title="submit" onPress={()=> this.signUp(this.state.email, this.state.password)}/>
       </View>
     );
@@ -446,7 +478,7 @@ class CreateGameScreen extends Component {
     }
 
     newGameID = gameID.toString();
-    newGameName = "Game"; //Add an option for user to choose name?
+    newGameName = "Game " + newGameID; //Add an option for user to choose name?
     gameID++;
 
     try {
@@ -477,13 +509,14 @@ class CreateGameScreen extends Component {
     } catch(e) {
       console.log(e);
     }
+    this.props.navigation.navigate('Games');
   }
 
   render() {
     return (
       <DismissKeyboard>
-        <View style={styles.container}>
-          <Text> Hello {this.state.location}</Text>
+        <View style={styles.container2}>
+          <Image source={require('./images/wildcat.png')} style={{width: 250, height: 200}} />
           <Button title='Select Date and Time' onPress={this.showPicker}/>
           <DateTimePickerModal
             isVisible={this.state.isVisible}
@@ -493,8 +526,8 @@ class CreateGameScreen extends Component {
             onCancel={this.hidePicker}
             is24Hour={false}
           />
-          <Text>{this.state.date.toDateString()}</Text>
-          <Text>{this.state.date.toTimeString()}</Text>
+          <Text style={styles.title3}>{this.state.date.toDateString()}</Text>
+          <Text style={styles.title3}>{this.state.date.toTimeString()}</Text>
           <RNPickerSelect
             style={{            
               inputIOS: {
@@ -511,11 +544,11 @@ class CreateGameScreen extends Component {
               { label: 'Tennis', value: 'Tennis'},
             ]}
           />
-          <Text>Total Players?</Text>
-          <TextInput value={this.state.total_players} name='total_players' placeholder={'Enter Number'} keyboardType='numeric' onChangeText={(text) => {this.setState({total_players: text})}}/>
-          <Text>Players Needed?</Text>
-          <TextInput value={this.state.players} name='players' placeholder={'Enter Number'} keyboardType='numeric' onChangeText={(text) => {this.setState({players: text})}}/>
-          <Text>Competetive?</Text> 
+          <Text style={styles.title3}>Total Players?</Text>
+          <TextInput style={{padding: 5}} value={this.state.total_players} name='total_players' placeholder={'Enter Number'} keyboardType='numeric' onChangeText={(text) => {this.setState({total_players: text})}}/>
+          <Text style={styles.title3}>Players Needed?</Text>
+          <TextInput style={{padding: 5}} value={this.state.players} name='players' placeholder={'Enter Number'} keyboardType='numeric' onChangeText={(text) => {this.setState({players: text})}}/>
+          <Text style={styles.title3}>Competetive?</Text> 
           <Switch 
             onValueChange={(val) => {this.setState({competative: val})}} 
             value={this.state.competative}
@@ -533,40 +566,35 @@ class GameInfoScreen extends Component {
     super(props);
     this.state = {
       data: [],
+      p_data:[
+        {
+          "name": "Andrew",
+          "skill": 6
+        },
+        {
+          "name": "Courtney",
+          "skill": 7
+        },
+        {
+          "name": "Justin",
+          "skill": 7
+        }
+      ],
       players: null,
       joinShow: true,
       leaveShow: false,
+      isRender: false,
     };
   }
 
-  // setJoinShow = async() => {
-  //   try {
-  //     await AsyncStorage.setItem('joinShow', 'true');
-  //   } catch(e) {
-  //     console.log(e);
-  //   }
-  // }
-
-  // getJoinShow = async() => {
-  //   try {
-  //     const show = await AsyncStorage.getItem('joinShow');
-  //     if(show === 'true') {
-  //       return true;
-  //     } else {
-  //       return false;
-  //     }
-  //   } catch(e) {
-  //     console.log(e);
-  //   }
-  // }
-
   setLeaveShow = async(val) => {
+    const leaveID = 'leaveShow' + this.state.data.id.toString();
     try {
       if(val) {
-        await AsyncStorage.setItem('leaveShow', 'true');
+        await AsyncStorage.setItem(leaveID, 'true');
       }
       else {
-        await AsyncStorage.setItem('leaveShow', 'false');
+        await AsyncStorage.setItem(leaveID, 'false');
       }
     } catch(e) {
       console.log(e);
@@ -574,8 +602,9 @@ class GameInfoScreen extends Component {
   }
 
   getLeaveShow = async() => {
+    const leaveID = 'leaveShow' + this.state.data.id.toString();
     try {
-      const show = await AsyncStorage.getItem('leaveShow');
+      const show = await AsyncStorage.getItem(leaveID);
       if(show === 'true') {
         this.setState({
           leaveShow: true,
@@ -594,12 +623,75 @@ class GameInfoScreen extends Component {
   }
 
   componentDidMount() {
+    this.init();
+  }
+
+  init = async() => {
     const game = this.props.route.params.game;
-    this.getLeaveShow();
+    const arr = this.state.p_data;
+    const pIds = 'exist_players' + game.id.toString();
+    const xPlayer = await AsyncStorage.getItem(pIds);
+    if (xPlayer) {
+      const ep_data = JSON.parse(xPlayer);
+      arr.push(ep_data);
+    }
     this.setState({
       data: game,
       players: game.players,
       total_players: game.players_needed,
+      p_data: arr,
+    }, () => this.getLeaveShow());
+  }
+
+  addToList = async() => {
+    const name = await AsyncStorage.getItem('name');
+    const sport = this.state.data.sport;
+    var skill = null;
+    if( sport === 'Soccer') {
+      const s = 'skill' + sport;
+      skill = await AsyncStorage.getItem(s);
+    }
+    if( sport === 'Basketball') {
+      const s = 'skill' + sport;
+      skill = await AsyncStorage.getItem(s);
+    }
+    if( sport === 'Volleyball') {   
+      const s = 'skill' + sport;
+      skill = await AsyncStorage.getItem(s);
+    }
+    if( sport === 'Tennis') {
+      const s = 'skill' + sport;
+      skill = await AsyncStorage.getItem(s);
+    }
+    const p_skill = {
+      'name': name,
+      'skill': skill
+    }
+
+    const arr = this.state.p_data;
+    const pIds = 'exist_players' + this.state.data.id.toString();
+    const xPlayer = await AsyncStorage.getItem(pIds);
+    if (xPlayer) {
+      arr.push(xPlayer);
+    } else {
+      const p_string = JSON.stringify(p_skill);
+      await AsyncStorage.setItem(pIds, p_string);
+      arr.push(p_skill);
+    }
+    this.setState({
+      p_data: arr,
+      isRender: true,
+    });
+  }
+
+  remFromList = async() => {
+    const data = this.state.p_data;
+    const pIds = 'exist_players' + this.state.data.id.toString();
+    await AsyncStorage.removeItem(pIds);
+    data.pop();
+    this.setState({
+      p_data: data,
+      isRender: false,
     });
   }
 
@@ -610,7 +702,8 @@ class GameInfoScreen extends Component {
       leaveShow: true,
     });
     if(this.state.players + 1 <= this.state.total_players) {
-      this.setState({players: this.state.players + 1});
+      this.addToList();
+      this.setState({players: this.state.players + 1}, () => this.addPlayer());
     } else {
       Alert.alert('Alert', 'This game is full sorry :(');
     }
@@ -623,28 +716,62 @@ class GameInfoScreen extends Component {
       leaveShow: false,
     });
     if(this.state.players - 1 > 0) {
-      this.setState({players: this.state.players - 1});
+      this.remFromList();
+      this.setState({players: this.state.players - 1}, () => this.removePlayer());
     } else {
       Alert.alert('Alert', 'This game needs atleast one player');
     }
   }
 
+  renderItem = (item) => {
+    return(
+      <View>
+        <Text style={styles.title4}>{item.name}     Skill: {item.skill}</Text>
+      </View>   
+    );
+  }
+
+  addPlayer = async() => {
+    try {
+      const gameId = (this.state.data.id - 1).toString();
+      AsyncStorage.getItem(gameId).then( async(data) => {
+        data = JSON.parse(data);
+        data.players++;
+        await AsyncStorage.setItem(gameId, JSON.stringify(data));
+      }).done();
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  removePlayer = async() => {
+    try {
+      const gameId = (this.state.data.id - 1).toString();
+      AsyncStorage.getItem(gameId).then( async(data) => {
+        data = JSON.parse(data);
+        data.players--;
+        await AsyncStorage.setItem(gameId, JSON.stringify(data));
+      }).done();
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
   render() {
-    console.log(this.state.data);
-    console.log(this.state.players);
     const data = this.state.data;
     return (
       <View style={styles.container}>
-        <Text>{data.name}</Text>
-        <Text>{data.sport}</Text>
-        <Text>Players: {this.state.players}/{data.players_needed}</Text>
-        <Text> Time: {data.time}</Text>
-        <Text>Checked In Players: </Text>
-        <Text>Player 1 Skill Level</Text>
-        <Text>Player 2 Skill Level</Text>
-        <Text>Player 3 Skill Level</Text>
-        <Text>Competetive</Text>
-        <Text>Posted at {data.posted}</Text>
+        <Text style={styles.title}>{data.name}</Text>
+        <Text style={styles.title4}>{data.sport}</Text>
+        <Text style={styles.title4}>Players: {this.state.players}/{data.players_needed}</Text>
+        <Text style={styles.title4}> Time: {data.time}</Text>
+        <Text style={styles.title4}> Day: {data.date}</Text>
+        {data.competative ? (
+          <Text style={styles.title4}>Competative</Text>
+        ): (<Text style={styles.title4}>Not Competative</Text>)}
+        <Text style={styles.title4}>Checked In Players: </Text>
+        <FlatList data={this.state.p_data} extraData={this.state.isRender} renderItem={({item}) => this.renderItem(item)} keyExtractor={(item, index) => index.toString()}/>
+        <Text style={styles.title4}> Posted at {data.posted}</Text>
         {this.state.joinShow ? (
           <Button title="Join Game" onPress={()=>{this.handleJoin()}}/>
         ) : null}
@@ -672,9 +799,9 @@ export default class App extends Component {
     return (
       <NavigationContainer>
         <Stack.Navigator>
-          <Stack.Screen name="Login" component={LoginScreen}/>
-          <Stack.Screen name="Signup" component={SignUpScreen}/>
-          <Stack.Screen name="Home" component={HomeScreen}/>
+          <Stack.Screen options={{headerShown: false,}} name="Login" component={LoginScreen}/>
+          <Stack.Screen options={{headerShown: false}} name="Signup" component={SignUpScreen}/>
+          <Stack.Screen options={{headerShown: false}} name="Home" component={HomeScreen}/>
           <Stack.Screen name="Games" component={GameScreen}/>
           <Stack.Screen name="GameInfo" component={GameInfoScreen}/>
           <Stack.Screen name="CreateGame" component={CreateGameScreen}/>
@@ -687,15 +814,22 @@ export default class App extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#001F5B',
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 10
+  },
+  
+  container2: {
+    flex: 1,
+    backgroundColor: 'white',
+    alignItems: 'center',
     padding: 10
   },
 
   profileScreen: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'space-evenly',
     padding: 10
@@ -707,11 +841,32 @@ const styles = StyleSheet.create({
   },
   
   title: {
-    fontSize: 30
+    fontSize: 30,
+    padding: 5,
+	  color: "white",
+  },
+  
+    title2: {
+    fontSize: 33,
+    padding: 5,
+	  color: "white",
+  },
+  
+   title3: {
+    fontSize: 30,
+    padding: 5,
+	  color: "navy",
+  },
+  
+   title4: {
+    fontSize: 20,
+    padding: 5,
+	  color: "white",
   },
 
   h2: {
-    fontSize: 20
+    fontSize: 20,
+    color: "navy",
   },
 
   spacing:{
